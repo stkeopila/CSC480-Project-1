@@ -1,18 +1,6 @@
 import sys
 
-# 4 (# of columns)
-# 3 (# of rows)
-# _ (empty cell)
-# # (blocked cell)
-# * (dirty cell)
-# @ (robot starting location)
-
-# example
-# 4
-# 3
-# _*__
-# __#*
-# _@*#
+# python3 make_vacuum_world.py 5 7 0.15 3 > sample−5x7.txt
 
 if __name__ == '__main__':
     if sys.argv[1] == "uniform-cost":
