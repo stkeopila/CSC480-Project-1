@@ -32,22 +32,43 @@ import heapq
 # return (columns, rows, starting_point, dirty_cells, grid)
 # dfs(robot_loc, visited, path, moves)
 
-def dfs(rob_loc, visited, path, moves): 
-    visited.add(rob_loc[2])
-    grid = rob_loc[4]
-    for r, c, dir in moves:
-        rob_row, rob_col = rob_loc[2][0] + r, rob_loc[2][1] + c
-        new_pos = (rob_row, rob_col)
-        if new_pos not in visited:
-            path.append(dir)
-            rob_loc[2] = new_pos
-            if grid[rob_row][rob_col] == '*':
-                path.append('V')
-            dfs(rob_loc, visited, path, moves)
+def dfs(rob_loc):
+    col, row, robot, dirty_cells, grid = rob_loc[0], rob_loc[1], rob_loc[2], rob_loc[3], rob_loc[4]
+    path = []
+    visited = set()
+    cleaned = []
+    nodes_generated = nodes_expanded = 0
+    moves = [(-1, 0, "N"),(1, 0, "S"),(0, -1, "W"),(0, 1, "E")]
+    def dfs_helper(new_pos):
+        nonlocal nodes_expanded, nodes_generated
+        nodes_expanded += 1
+        if len(cleaned) == len(dirty_cells):
+            return True
+        for r, c, dir in moves:
+            new_row, new_col = new_pos[0] + r, new_pos[1] + c
+            next_pos = (new_row, new_col)
+            nodes_generated += 1
+            if 0 <= new_row < row and 0 <= new_col < col and grid[new_row][new_col] != '#':
+                new_spot = (next_pos, frozenset(cleaned))
+                if new_spot not in visited:
+                    visited.add(new_spot)
+                    path.append(dir)
+                    if grid[new_row][new_col] == '*' and next_pos not in cleaned:
+                        cleaned.append(next_pos)
+                        path.append('V')
+                    if dfs_helper(next_pos):
+                        return True
+                    if path[-1] == 'V':
+                        path.pop()
+                        cleaned.pop()
+                    path.pop()
+        return False
+    dfs_helper(robot)
 
-# vististed.remove()
-        
-
+    for dir in path:
+        print(dir)
+    print(F"{nodes_generated} nodes generated\n{nodes_expanded} nodes expanded")
+    return path
     
     
 
@@ -123,10 +144,7 @@ if __name__ == '__main__':
     if sys.argv[1] == "uniform-cost":
         uniform_cost(robot_loc)
     elif sys.argv[1] == "depth-first":
-        visited = set()
-        path = []
-        moves = [(-1, 0, "N"),(1, 0, "S"),(0, -1, "W"),(0, 1, "E")]
-        dfs(robot_loc, visited, path, moves)
+        dfs(robot_loc)
     else:
         print("Error, Invalid input for search algorithm. Try 'uniform-cost' or 'depth-first'.")
         sys.exit()
